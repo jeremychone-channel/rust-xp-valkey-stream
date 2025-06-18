@@ -14,7 +14,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// convert into one.
 	let res: i32 = con.get("my_key")?;
 
-	println!("->> {res}");
+	println!("my_key result: {res}");
 
 	Ok(())
 }
