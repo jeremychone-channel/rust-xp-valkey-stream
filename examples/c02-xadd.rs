@@ -6,7 +6,7 @@ use std::collections::HashMap;
 async fn main() -> core::result::Result<(), Box<dyn std::error::Error>> {
 	println!("Hello, world!");
 
-	let stream_id = "stream-01";
+	let stream_id = "stream-c02";
 
 	let client = redis::Client::open("redis://127.0.0.1:6379")?;
 	let mut con = client.get_connection()?;
