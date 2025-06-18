@@ -9,15 +9,15 @@ async fn main() -> core::result::Result<(), Box<dyn std::error::Error>> {
 
 	let stream_key = "stream-c03";
 	let client = redis::Client::open("redis://127.0.0.1:6379")?;
-	let con_orig = client.get_multiplexed_async_connection().await?;
 
 	// -- Setup: clean stream
-	let mut con = con_orig.clone();
 	{
+		let mut con = client.get_multiplexed_async_connection().await?;
 		let _: () = con.del(stream_key).await?;
 	}
 
 	// -- Task 1: XADD
+	let mut con = client.get_multiplexed_async_connection().await?;
 	let handle_1 = tokio::spawn(async move {
 		println!("->> TASK-XADD PREP");
 		sleep(Duration::from_millis(2000)).await;
@@ -36,7 +36,7 @@ async fn main() -> core::result::Result<(), Box<dyn std::error::Error>> {
 	});
 
 	// -- Task 2: XREAD
-	let mut con = con_orig.clone();
+	let mut con = client.get_multiplexed_async_connection().await?;
 	let handle_2 = tokio::spawn(async move {
 		println!("->> TASK-XREAD START");
 		let mut last_id: String = "$".to_string();
@@ -55,7 +55,11 @@ async fn main() -> core::result::Result<(), Box<dyn std::error::Error>> {
 					};
 
 					message_count += 1;
-					println!("->> TASK-XREAD - Message {message_count}: {:#?}\n", first_stream_id);
+					println!(
+						"->> TASK-XREAD - Message {message_count}: {:#?}\n\t->> FAKE PROCESSING",
+						first_stream_id
+					);
+					sleep(Duration::from_millis(1000)).await;
 
 					last_id = first_stream_id.id.to_string();
 
@@ -81,8 +85,8 @@ async fn main() -> core::result::Result<(), Box<dyn std::error::Error>> {
 	res2?;
 
 	// -- Cleanup
-	let mut con = con_orig.clone();
 	{
+		let mut con = client.get_multiplexed_async_connection().await?;
 		let num: usize = con.xtrim(stream_key, redis::streams::StreamMaxlen::Equals(0)).await?;
 		println!("->> number of records trimmed: {num}");
 	}

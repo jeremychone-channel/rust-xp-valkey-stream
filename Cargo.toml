@@ -14,6 +14,6 @@ unused = { level = "allow", priority = -1 } # For exploratory dev.
 # -- Async
 tokio = { version = "1", features = ["full"] }
 # -- DB
-redis = { version = "0.32.0", features = ["tokio-comp"] }
+redis = { version = "0.32.0", features = ["tokio-comp", "aio"] }
 # -- Others
 derive_more = {version = "2", features = ["from", "display"] }
