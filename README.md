@@ -1,4 +1,9 @@
 
+## Docker
+
+```sh
+docker run --rm -p 6379:6379 valkey/valkey:8.1.2
+```
 
 <br />
 
