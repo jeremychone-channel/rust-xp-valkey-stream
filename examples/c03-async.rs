@@ -6,8 +6,9 @@ use tokio::time::sleep;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let client = redis::Client::open("redis://127.0.0.1/")?;
-	// let mut con = client.get_multiplexed_async_connection().await?;
 
+	// NOTE: Even if the redis-rs doc say we can reuse/clone multiplexed_async_connection
+	//       For read/write on stream, better to have different connection (otherwise, read none)
 	let stream_name = "stream-c03";
 
 	println!();
@@ -42,6 +43,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 				for stream_key in reply.keys {
 					for stream_id in stream_key.ids {
 						println!("READER - received: id: {} - fields: {:?}", stream_id.id, stream_id.map);
+						println!("READER - SLEEP 800ms");
+						sleep(Duration::from_millis(800)).await;
+
 						last_id = stream_id.id;
 					}
 				}
