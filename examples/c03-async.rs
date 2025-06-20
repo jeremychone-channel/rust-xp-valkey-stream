@@ -31,7 +31,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 		println!("READER - started");
 		// NOTE: Using "0-0" to start from the beginning.
 		//       `xread` with just "0" is not supported on some redis versions for streams.
-		let mut last_id = "0-0".to_string();
+		let mut last_id = "0".to_string();
 		loop {
 			let options = StreamReadOptions::default().count(1).block(2000);
 			let result: Option<StreamReadReply> = con_reader
@@ -42,7 +42,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 			if let Some(reply) = result {
 				for stream_key in reply.keys {
 					for stream_id in stream_key.ids {
-						println!("READER - received: id: {} - fields: {:?}", stream_id.id, stream_id.map);
+						println!("READER - read: id: {} - fields: {:?}", stream_id.id, stream_id.map);
 						println!("READER - SLEEP 800ms");
 						sleep(Duration::from_millis(800)).await;
 
