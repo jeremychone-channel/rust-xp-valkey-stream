@@ -26,19 +26,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 		println!("WRITER - finished");
 	});
 
-	// -- XREAGROUP group_01
-	let group_name = "group_01";
-	create_group(&client, stream_name, group_name).await?;
+	// -- XREAGROUP groups
+	let group_01 = "group_01";
+	create_group(&client, stream_name, group_01).await?;
+	let group_02 = "group_02";
+	create_group(&client, stream_name, group_02).await?;
 
 	// Consumer 01
-	let consumer_01_handle = run_consumer(&client, stream_name, group_name, "consumer_01").await?;
+	let consumer_g01_a_handle = run_consumer(&client, stream_name, group_01, "consumer_g01_a").await?;
 	// Consumer 02
-	let consumer_02_handle = run_consumer(&client, stream_name, group_name, "consumer_02").await?;
+	let consumer_g01_b_handle = run_consumer(&client, stream_name, group_01, "consumer_g01_b").await?;
+
+	// Consumer 01
+	let consumer_g02_a_handle = run_consumer(&client, stream_name, group_02, "consumer_g02_a").await?;
 
 	// -- Wait for tasks to complete
 	writer_handle.await?;
-	consumer_01_handle.await?;
-	consumer_02_handle.await?;
+	consumer_g01_a_handle.await?;
+	consumer_g01_b_handle.await?;
+	consumer_g02_a_handle.await?;
 
 	println!();
 
