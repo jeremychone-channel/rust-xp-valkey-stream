@@ -28,7 +28,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// -- XREAGROUP group-01
 	let group_01 = "group_01";
 	let mut con_group_01 = client.get_multiplexed_async_connection().await?;
-	let _: () = con_group_01.xgroup_create_mkstream(stream_name, group_01, "0").await?;
+	let group_create_res: Result<(), _> = con_group_01.xgroup_create_mkstream(stream_name, group_01, "0").await;
+	if let Err(err) = group_create_res {
+		println!("XGROUP - group '{group_01}' already exists, skipping creation.");
+	} else {
+		println!("XGROUP - group '{group_01}' created successfully.");
+	}
+
 	// Consumer 01
 	let reader_handle = tokio::spawn(async move {
 		let consumer = "consumer_01";
