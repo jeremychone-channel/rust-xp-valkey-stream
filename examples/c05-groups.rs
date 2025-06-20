@@ -21,21 +21,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 		for i in 0..20 {
 			let id: String = con_writer.xadd(stream_name, "*", &[("val", &i.to_string())]).await.unwrap();
 			println!("WRITER - sent 'val: {i}' with id: {id}");
-			sleep(Duration::from_millis(500)).await;
+			sleep(Duration::from_millis(200)).await;
 		}
 		println!("WRITER - finished");
 	});
 
-	// -- XREAGROUP group-01
-	let group_name = "group_name";
+	// -- XREAGROUP group_01
+	let group_name = "group_01";
 	create_group(&client, stream_name, group_name).await?;
 
 	// Consumer 01
 	let consumer_01_handle = run_consumer(&client, stream_name, group_name, "consumer_01").await?;
+	// Consumer 02
+	let consumer_02_handle = run_consumer(&client, stream_name, group_name, "consumer_02").await?;
 
 	// -- Wait for tasks to complete
 	writer_handle.await?;
 	consumer_01_handle.await?;
+	consumer_02_handle.await?;
 
 	println!();
 
@@ -57,7 +60,7 @@ async fn run_consumer(
 	let mut con = client.get_multiplexed_async_connection().await?;
 
 	let reader_handle = tokio::spawn(async move {
-		let consumer = "consumer_01";
+		let consumer = consumer_name;
 		let options = StreamReadOptions::default().count(1).block(2000).group(group_name, consumer);
 		loop {
 			let result: Option<StreamReadReply> = con
@@ -73,7 +76,7 @@ async fn run_consumer(
 							stream_id.id, stream_id.map
 						);
 						println!("XREADGROUP - SLEEP 800ms (sim job)");
-						sleep(Duration::from_millis(800)).await;
+						sleep(Duration::from_millis(400)).await;
 						let res: Result<(), _> = con.xack(stream_name, group_name, &[stream_id.id]).await;
 						if let Err(res) = res {
 							println!("XREADGROUP - ERROR ACK: {res}");
