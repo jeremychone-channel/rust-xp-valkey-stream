@@ -7,8 +7,8 @@ use tokio::time::sleep;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let client = redis::Client::open("redis://127.0.0.1/")?;
 
-	// NOTE: Even if the redis-rs doc say we can reuse/clone multiplexed_async_connection
-	//       For read/write on stream, better to have different connection (otherwise, read none)
+	// NOTE: Even if the redis-rs docs say we can reuse/clone multiplexed_async_connection,
+	//       for reading/writing on a stream, it's better to have a different connection (otherwise, read returns none)
 	let stream_name = "stream-c04";
 
 	println!();
@@ -25,12 +25,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 		println!("WRITER - finished");
 	});
 
-	// -- XREAGROUP group-01
+	// -- XREADGROUP group-01
 	let group_01 = "group_01";
 	let mut con_group_01 = client.get_multiplexed_async_connection().await?;
 	let group_create_res: Result<(), _> = con_group_01.xgroup_create_mkstream(stream_name, group_01, "0").await;
 	if let Err(err) = group_create_res {
-		println!("XGROUP - group '{group_01}' already exists, skipping creation.");
+		println!("XGROUP - group '{group_01}' already exists, skipping creation. Cause: {err}");
 	} else {
 		println!("XGROUP - group '{group_01}' created successfully.");
 	}
@@ -43,7 +43,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 			let result: Option<StreamReadReply> = con_group_01
 				.xread_options(&[stream_name], &[">"], &options)
 				.await
-				.expect("Fail to read stream");
+				.expect("Failed to read stream");
 
 			if let Some(reply) = result {
 				for stream_key in reply.keys {
@@ -52,7 +52,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 							"XREADGROUP - {group_01} - {consumer} - read: id: {} - fields: {:?}",
 							stream_id.id, stream_id.map
 						);
-						println!("XREADGROUP - SLEEP 800ms (sim job)");
+						println!("XREADGROUP - SLEEP 800ms (simulating job)");
 						sleep(Duration::from_millis(800)).await;
 						let res: Result<(), _> = con_group_01.xack(stream_name, group_01, &[stream_id.id]).await;
 						if let Err(res) = res {

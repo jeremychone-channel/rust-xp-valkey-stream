@@ -8,10 +8,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 	let stream_name = "stream-c02";
 
-	// -- Add
+	// -- Add an entry
 	let _: () = con.xadd(stream_name, "*", &[("name", "Mike"), ("surname", "Donavan")])?;
 
-	// -- Read all Stream Records from the start
+	// -- Read all stream records from the start
 	let res: StreamReadReply = con.xread(&[stream_name], &["0"])?;
 
 	println!("All records for {stream_name}: {res:#?} ");

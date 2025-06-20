@@ -8,8 +8,8 @@ use tokio::time::sleep;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let client = redis::Client::open("redis://127.0.0.1/")?;
 
-	// NOTE: Even if the redis-rs doc say we can reuse/clone multiplexed_async_connection
-	//       For read/write on stream, better to have different connection (otherwise, read none)
+	// NOTE: Even if the redis-rs doc says we can reuse/clone multiplexed_async_connection,
+	//       for read/write on stream, it's better to have different connections (otherwise, read none)
 	let stream_name = "stream-c05";
 
 	println!();
@@ -26,7 +26,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 		println!("WRITER - finished");
 	});
 
-	// -- XREAGROUP groups
+	// -- XREADGROUP groups
 	let group_01 = "group_01";
 	create_group(&client, stream_name, group_01).await?;
 	let group_02 = "group_02";
@@ -56,7 +56,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	Ok(())
 }
 
-// NOTE: The .await is just to return the `reader_handle`, does not wait for it.
+// NOTE: The .await is just to return the `reader_handle`, it does not wait for it.
 async fn run_consumer(
 	client: &Client,
 	stream_name: &'static str,
@@ -72,7 +72,7 @@ async fn run_consumer(
 			let result: Option<StreamReadReply> = con
 				.xread_options(&[stream_name], &[">"], &options)
 				.await
-				.expect("Fail to read stream");
+				.expect("Failed to read stream");
 
 			if let Some(reply) = result {
 				for stream_key in reply.keys {
@@ -104,7 +104,7 @@ async fn create_group(client: &Client, stream_name: &str, group_name: &str) -> R
 	let mut con_group_name = client.get_multiplexed_async_connection().await?;
 	let group_create_res: Result<(), _> = con_group_name.xgroup_create_mkstream(stream_name, group_name, "0").await;
 	if let Err(err) = group_create_res {
-		println!("XGROUP - group '{group_name}' already exists, skipping creation.");
+		println!("XGROUP - group '{group_name}' already exists, skipping creation. Cause: {err}");
 	} else {
 		println!("XGROUP - group '{group_name}' created successfully.");
 	}

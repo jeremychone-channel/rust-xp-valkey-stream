@@ -7,8 +7,8 @@ use tokio::time::sleep;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let client = redis::Client::open("redis://127.0.0.1/")?;
 
-	// NOTE: Even if the redis-rs doc say we can reuse/clone multiplexed_async_connection
-	//       For read/write on stream, better to have different connection (otherwise, read none)
+	// NOTE: Even if the redis-rs docs say we can reuse/clone multiplexed_async_connection,
+	//       for reading/writing on streams, it's better to have a different connection (otherwise, reads return none).
 	let stream_name = "stream-c03";
 
 	println!();
@@ -29,15 +29,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let mut con_reader = client.get_multiplexed_async_connection().await?;
 	let reader_handle = tokio::spawn(async move {
 		println!("READER - started");
-		// NOTE: Using "0-0" to start from the beginning.
-		//       `xread` with just "0" is not supported on some redis versions for streams.
-		let mut last_id = "0".to_string();
+		// NOTE: Using "0-0" to start from the beginning. ("0" will be equivalent to "0-0")
+		let mut last_id = "0-0".to_string();
+
 		loop {
 			let options = StreamReadOptions::default().count(1).block(2000);
 			let result: Option<StreamReadReply> = con_reader
 				.xread_options(&[stream_name], &[&last_id], &options)
 				.await
-				.expect("Fail to read stream");
+				.expect("Failed to read stream");
 
 			if let Some(reply) = result {
 				for stream_key in reply.keys {
