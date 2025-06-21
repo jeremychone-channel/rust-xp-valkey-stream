@@ -3,7 +3,7 @@ use redis::streams::{StreamReadOptions, StreamReadReply};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-	let client = redis::Client::open("redis://127.0.0.1/")?;
+	let client = redis::Client::open("redis://127.0.0.1:6379")?;
 	let mut con = client.get_connection()?;
 
 	let stream_name = "stream-c02";

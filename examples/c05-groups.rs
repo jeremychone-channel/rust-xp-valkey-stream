@@ -6,7 +6,7 @@ use tokio::time::sleep;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-	let client = redis::Client::open("redis://127.0.0.1/")?;
+	let client = redis::Client::open("redis://127.0.0.1:6379")?;
 
 	// NOTE: Even if the redis-rs doc says we can reuse/clone multiplexed_async_connection,
 	//       for read/write on stream, it's better to have different connections (otherwise, read none)

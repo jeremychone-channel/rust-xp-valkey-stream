@@ -3,8 +3,8 @@ use redis::Commands;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// Connect to Redis
-	// or "redis://127.0.0.1:6379" (to specify the port if it is not the default)
-	let client = redis::Client::open("redis://127.0.0.1/")?;
+	// or "redis://127.0.0.1/" (for default port 6379)
+	let client = redis::Client::open("redis://127.0.0.1:6379")?;
 	let mut con = client.get_connection()?;
 
 	// Throw away the result; just make sure it does not fail
