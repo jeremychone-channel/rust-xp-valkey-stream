@@ -77,6 +77,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 	// -- Clean up the stream
 	let mut con = client.get_multiplexed_async_connection().await?;
+	// Note: This will delete the stream and all attached groups
 	let count: i32 = con.del(stream_name).await?;
 	println!("Stream '{stream_name}' deleted ({count} key).");
 

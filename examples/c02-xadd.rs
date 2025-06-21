@@ -9,7 +9,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let stream_name = "stream-c02";
 
 	// -- Add an entry
-	let _: () = con.xadd(stream_name, "*", &[("name", "Mike"), ("surname", "Donavan")])?;
+	let id: String = con.xadd(stream_name, "*", &[("name", "Mike"), ("surname", "Donavan")])?;
+	println!("XADD - id: {id}");
 
 	// -- Read all stream records from the start
 	let res: StreamReadReply = con.xread(&[stream_name], &["0"])?;
@@ -20,6 +21,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let options = StreamReadOptions::default().count(1);
 	let res: StreamReadReply = con.xread_options(&[stream_name], &["0"], &options)?;
 	println!("Only one record for {stream_name}: {res:?} ");
+
+	// -- Clean up the stream
+	// This will delete the stream
+	let count: i32 = con.del(stream_name)?;
+	println!("Stream '{stream_name}' deleted ({count} key).");
 
 	Ok(())
 }
