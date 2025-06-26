@@ -1,4 +1,4 @@
-//! Simple ValKey/Redis Get/Set (not stream yet)
+//! Simple Valkey/Redis Get/Set (not stream yet)
 
 use redis::{Client, Commands};
 

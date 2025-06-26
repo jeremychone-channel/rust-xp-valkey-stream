@@ -1,10 +1,13 @@
-## ValKey Info
+## Valkey Info
 
-- [ValKey Site](https://valkey.io/)
+- [Valkey Site](https://valkey.io/)
 - [Stream Guide](https://valkey.io/topics/streams-intro/)
+    - [Command Reference](https://valkey.io/commands/)
     - [XADD](https://valkey.io/commands/xadd/)
     - [XREAD](https://valkey.io/commands/xread/)
+    - [XGROUP CREATE](https://valkey.io/commands/xgroup-create/)
     - [XREADGROUP](https://valkey.io/commands/xreadgroup/)
+
 
 ### Starting with Docker
 
